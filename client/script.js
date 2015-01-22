@@ -1,10 +1,12 @@
 $(document).ready(function() {
   var app;
-  // todo - validate time and location
+  // TODO - validate time and location
   var time = $('#time');
   var location = $('#location');
   var submit = $('#submit');
 
+  ///////////////////////////////////////////////////////
+  // ajax request
   app = {
     server: 'http://127.0.0.1:3000',
 
