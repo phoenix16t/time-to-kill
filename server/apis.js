@@ -1,16 +1,14 @@
-var yelp = require("yelp").createClient({
-  consumer_key: "DDV0ewsiTHaRGVAyr2i9ZA", 
-  consumer_secret: "KGF7__vRo0966s8itGzyEbyoOsA",
-  token: "yX8pxrwy1X29qaLRTMpBxA7mOgAgSwQt",
-  token_secret: "0l2ASOeoyNFXAnAL9mPI4hOtWjw"
-});
+var key = require("./yelp_key.js");
+var yelpConnection = require("yelp").createClient(key);
 
-function yelpScraper(time, location, callback) {
+///////////////////////////////////////////////////////
+// yelp
+exports.yelp = function (time, location, callback) {
   // walking speed - 5000 meter per hour, divided by 2 to account for return time
   var meters = (time * 5000) / 2;
-  console.log("Searching for locations around zip", location, "reachable in", time/2, "hour(s) (", meters, "meters walking )");    // logging
+  console.log("Searching for locations around zip", location, "reachable in", time/2, "hour(s) (", meters, "meters walking)");    // logging
 
-  yelp.search({
+  yelpConnection.search({
     location: location,
     radius_filter: meters,
     category_filter: 'bars',
@@ -22,8 +20,6 @@ function yelpScraper(time, location, callback) {
     console.log("user's lng:", data.region.center.longitude);
     // console.log("business:", data.businesses[0]);
 
-    callback(data.businesses);
+    // callback(data.businesses);
   });
 }
-
-exports.yelp = yelpScraper;
