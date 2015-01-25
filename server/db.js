@@ -1,22 +1,27 @@
 var mysql = require('mysql');
+var knex = require('knex');
 
 ///////////////////////////////////////////////////////
 // db connection
-var connection = mysql.createConnection({
-  user: 'root',
-  password: 'superman',
-  database: 'timeToKill'
+var db = knex({
+  client: 'mysql',
+  connection: {
+    host: '127.0.0.1',
+    user: 'root',
+    password: 'superman',
+    database: 'timeToKill'
+  }
 });
-connection.connect();
 
 ///////////////////////////////////////////////////////
 // retrieve all businesses
-exports.retrieve = function(callback) {
-  connection.query(
-    'select * from businesses',
-    function(err, results) {
-      if (err || results.length === 0) { throw err; }
-      callback(results);
-    }
-  )
+exports.retrieve = function(type) {
+  console.log("type", type);
+  return db('businesses').select().where({type: type})
+    .then(function(results) {
+      return results;
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
 };
