@@ -1,6 +1,7 @@
 $(document).ready(function() {
   var app;
   // TODO - validate time and location
+  var venueType = $('#venueType');
   var time = $('#time');
   var location = $('#location');
   var submit = $('#submit');
@@ -14,7 +15,8 @@ $(document).ready(function() {
       $.ajax({
         url: this.server,
         type: 'POST',
-        data: JSON.stringify({"time": time.val(), "location": location.val()}),
+        data: JSON.stringify({"type": venueType.val(),
+          "time": time.val(), "location": location.val()}),
         contentType: 'application/json',
         success: function(data) {
           console.log("success", data);
