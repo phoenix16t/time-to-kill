@@ -15,8 +15,11 @@ $(document).ready(function() {
       $.ajax({
         url: this.server,
         type: 'POST',
-        data: JSON.stringify({"type": venueType.val(),
-          "time": time.val(), "location": location.val()}),
+        data: JSON.stringify({
+          "venueType": venueType.val(),
+          "time": time.val(),
+          "location": location.val()
+        }),
         contentType: 'application/json',
         success: function(data) {
           console.log("success", data);
