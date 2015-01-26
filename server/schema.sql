@@ -7,6 +7,7 @@ DROP TABLE businesses;
 
 /* TODO: index the 'type' field */
 CREATE TABLE businesses (
+  timestamp datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   id int(100) NOT NULL AUTO_INCREMENT,
   name varchar(50) NOT NULL,
   address varchar(50) NOT NULL,
@@ -22,3 +23,5 @@ CREATE TABLE businesses (
 /* TODO: remove this test data */
 INSERT INTO businesses (name, address, type, open, close, rating, latitude, longitude) values ('abc', '123 main st', 'bar', '11:00', '21:00', '5', 37.787833, -122.403624);
 INSERT INTO businesses (name, address, type, open, close, rating, latitude, longitude) values ('def', '123 main st', 'bar', '11:00', '21:00', '5', 37.787833, -122.403624);
+INSERT INTO businesses (name, address, type, open, close, rating, latitude, longitude) values ('ghi','1 main','bar','9:00','20:00',3,37,-122);
+INSERT INTO businesses (name, address, type, open, close, rating, latitude, longitude) values ('ghi','1 main','restaurant','9:00','20:00',3,37,-122);
