@@ -1,8 +1,8 @@
 var app = require('express')();
 var bodyParser = require('body-parser');
+var q = require('q');
 var apis = require('./apis.js');
 var db = require('./db.js');
-var q = require('q');
 app.use(bodyParser.json());
 
 var respond = function(text) {
@@ -18,17 +18,32 @@ app.all('/', function(request, response, next) {
 });
 
 app.post('/', function(request, response) {
-  // apis.yelp(request.body.time, request.body.location, db.finder);
 
-  db.retrieve(request.body.venueType)
+  apis.yelp(request.body.time, request.body.location)
     .then(function(temp) {
-      console.log("caller", temp);
+      console.log("donions", temp.businesses[0]);
     })
-    .then(function(temp) {
-      response.send(temp) })
     .catch(function(err) {
       console.error(err);
     });
+
+  // db.retrieve(request.body.venueType)
+  //   .then(function(dbResults) {
+  //     dbResults.forEach(function(result) {
+  //       // result from mysql in milli - converted to js in seconds
+  //       console.log("result", result.timestamp.getTime() / 1000);
+  //       var current = new Date();
+  //       console.log("current", current);
+  //       var current = current.getHours() + ":" + current.getMinutes();
+  //       console.log("current", current);
+  //     });
+  //   })
+  //   .then(function(temp) {
+  //     response.send(temp);
+  //   })
+  //   .catch(function(err) {
+  //     console.error(err);
+  //   });
 
   // this.response = response;
 

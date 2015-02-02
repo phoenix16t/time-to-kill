@@ -1,4 +1,5 @@
 var key = require("./yelp_key.js");
+var q = require('q');
 var yelpConnection = require("yelp").createClient(key);
 
 ///////////////////////////////////////////////////////
@@ -8,18 +9,23 @@ exports.yelp = function (time, location, callback) {
   var meters = (time * 5000) / 2;
   console.log("Searching for locations around zip", location, "reachable in", time/2, "hour(s) (", meters, "meters walking)");    // logging
 
-  yelpConnection.search({
+  var options = {
     location: location,
     radius_filter: meters,
     category_filter: 'bars',
-    offset: 20,
+    limit: 20,
+    offset: 0,
     sort: 1
-  }, 
-  function(error, data) {
-    console.log("user's lat:", data.region.center.latitude);
-    console.log("user's lng:", data.region.center.longitude);
-    // console.log("business:", data.businesses[0]);
+  };
 
-    // callback(data.businesses);
+  var deferred = q.defer();
+  yelpConnection.search(options, function(err, test) {
+    if(err) {
+      deferred.reject(new Error(err));
+    }
+    else {
+      deferred.resolve(test);
+    }
   });
-}
+  return deferred.promise;
+};
