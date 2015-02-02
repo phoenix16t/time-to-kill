@@ -3,7 +3,7 @@ CREATE DATABASE timeToKill;
 USE timeToKill;
 
 /* TODO: remove this */
-DROP TABLE businesses;
+DROP TABLE IF EXISTS businesses;
 
 /* TODO: index the 'type' field */
 CREATE TABLE businesses (
