@@ -20,7 +20,8 @@ app.post('/', function(request, response) {
 
   apis.yelp(request.body.time, request.body.location)
     .then(function(temp) {
-      console.log("donions", temp.businesses[0]);
+      console.log("donions", temp[0].businesses[0]);
+      console.log("donions", temp[1].businesses[0]);
     })
     .catch(function(err) {
       console.error(err);

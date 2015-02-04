@@ -2,6 +2,19 @@ var key = require("./yelp_key.js");
 var q = require('q');
 var yelpConnection = require("yelp").createClient(key);
 
+var searcher = function(options) {
+  var deferred = q.defer();
+  yelpConnection.search(options, function(err, test) {
+    if(err) {
+      deferred.reject(new Error(err));
+    }
+    else {
+      deferred.resolve(test);
+    }
+  });
+  return deferred.promise;
+};
+
 ///////////////////////////////////////////////////////
 // yelp
 exports.yelp = function (time, location, callback) {
@@ -18,14 +31,28 @@ exports.yelp = function (time, location, callback) {
     sort: 1
   };
 
-  var deferred = q.defer();
-  yelpConnection.search(options, function(err, test) {
-    if(err) {
-      deferred.reject(new Error(err));
-    }
-    else {
-      deferred.resolve(test);
-    }
-  });
-  return deferred.promise;
+  var options2 = {
+    location: location,
+    radius_filter: meters,
+    category_filter: 'bars',
+    limit: 20,
+    offset: 20,
+    sort: 1
+  };
+
+  var allResults = [];
+
+  return searcher(options)
+    .then(function(results) {
+      allResults.push(results);
+      return options2;
+    })
+    .then(searcher)
+    .then(function(results) {
+      allResults.push(results);
+      return allResults;
+    })
+    .catch(function(err) {
+      console.error(err);
+    });
 };
