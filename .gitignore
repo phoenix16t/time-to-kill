@@ -1,4 +1,4 @@
 node_modules
 bower_components
 tmp
-server/yelp_key.js
+server/data.js

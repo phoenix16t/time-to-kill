@@ -4,9 +4,9 @@ var apis = require('./apis.js');
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-var respond = function(text) {
-  this.response.send("body: " + JSON.stringify(text));
-}
+app.set('responder', function(text) {
+  app.get('response').send("body: " + JSON.stringify(text));
+});
 
 ///////////////////////////////////////////////////////
 // handle ajax
@@ -17,17 +17,18 @@ app.all('/', function(request, response, next) {
 });
 
 app.post('/', function(request, response) {
-
+  app.set('response', response);
   apis.yelp(request.body.time, request.body.location)
-    .then(function(temp) {
-      console.log("donions", temp[0].businesses[0]);
-      console.log("donions", temp[1].businesses[0]);
+    .then(function(yelpResults) {
+      console.log("bars1", yelpResults[0]);
+      console.log("bars2", yelpResults[1]);
+      console.log("restaurants1", yelpResults[2]);
+      console.log("restaurants2", yelpResults[3]);
+      app.get('responder')(yelpResults);
     })
     .catch(function(err) {
       console.error(err);
     });
-
-  // this.response = response;
 
   console.log("replying with body of request");
 })
