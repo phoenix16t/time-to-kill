@@ -1,4 +1,4 @@
 node_modules
-bower_components
+client/bower_components
 tmp
 server/data.js
