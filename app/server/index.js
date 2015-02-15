@@ -31,6 +31,6 @@ app.post('/', function(request, response) {
     });
 
   console.log("replying with body of request");
-})
+});
 
 app.listen(3000, '0.0.0.0');
