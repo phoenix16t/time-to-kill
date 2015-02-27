@@ -1,4 +1,5 @@
 var data = require("./data.js");
+var test_data = require("./test_data.js");
 var q = require('q');
 var yelpConnection = require("yelp").createClient(data.yelp);
 
@@ -21,7 +22,7 @@ exports.yelp = function (time, location, callback) {
 
   // early exit - let's not bother yelp for now
   var deferred = q.defer();
-  deferred.resolve([data.bars1, data.bars2, data.restaurants1, data.restaurants2]);
+  deferred.resolve([test_data.bars1, test_data.bars2, test_data.restaurants1, test_data.restaurants2]);
   return deferred.promise;
 
 
