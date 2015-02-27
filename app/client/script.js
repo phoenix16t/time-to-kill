@@ -35,9 +35,9 @@ $(document).ready(function() {
 
   ///////////////////////////////////////////////////////
   // get address
-  function findAddress(arg) {
+  function findAddress(coords) {
     var deferred = q.defer();
-    var latlng = new google.maps.LatLng(arg.coords.latitude, arg.coords.longitude);
+    var latlng = new google.maps.LatLng(coords.latitude, coords.longitude);
     geocoder.geocode({'latLng': latlng}, function(results, status) {
       if(status === google.maps.GeocoderStatus.OK) {
         console.log("restslsdjkf", results);
@@ -53,36 +53,46 @@ $(document).ready(function() {
 
   ///////////////////////////////////////////////////////
   // ajax request
-  var killTime = function() {
+  function findVenues(location) {
+    var deferred = q.defer();
+    $.ajax({
+      url: server,
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        "venueType": venueType.val(),
+        "time": time.val(),
+        "location": location
+      }),
+      success: function(data) {
+        deferred.resolve(data);
+      },
+      error: function(data) {
+        deferred.reject(data);
+      }
+    });
+    return deferred.promise;
+  }
 
-    status.text("Finding coordinates...");
+  ///////////////////////////////////////////////////////
+  // main application controller
+  var killTime = function() {
+    status.text("Finding location coordinates...");
     location.text("");
     findCoords()
       .then(function(result) {
         status.text("Coordinates found. Finding address...");
-        return findAddress(result);
+        return findAddress(result.coords);
       })
       .then(function(result) {
         status.text("Address found");
         location.text(result[0].formatted_address);
+        return findVenues(result[0].formatted_address);
+      })
+      .then(function(result) {
+        status.text("Venues found");
+        console.log("venues", result);
       });
-
-    $.ajax({
-      url: server,
-      type: 'POST',
-      data: JSON.stringify({
-        "venueType": venueType.val(),
-        "time": time.val(),
-        "location": location.val()
-      }),
-      contentType: 'application/json',
-      success: function(data) {
-        console.log("success", data);
-      },
-      error: function(data) {
-        console.log("error", data);
-      }
-    });
   };
 
   google.maps.event.addDomListener(window, 'load', initialize);
