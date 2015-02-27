@@ -1,4 +1,5 @@
 node_modules
 app/client/bower_components
 tmp
-server/data.js
+app/server/data.js
+app/client/build.js
