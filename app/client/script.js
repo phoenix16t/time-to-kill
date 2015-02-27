@@ -4,6 +4,7 @@ $(document).ready(function() {
   var venueType = $('#venueType');
   var time = $('#time');
   var location = $('#location');
+  var status = $('#status');
   var submit = $('#submit');
   var geocoder;
   var server = 'http://127.0.0.1:3000';
@@ -16,17 +17,15 @@ $(document).ready(function() {
   }
 
   ///////////////////////////////////////////////////////
-  // get geolocation
-  function findLocation() {
+  // get lat and lng
+  function findCoords() {
     if(navigator.geolocation) {
       var deferred = q.defer();
       navigator.geolocation.getCurrentPosition(function(result, err) {
         if(err) {
-          console.log("err", err);
           deferred.reject(new Error(err));
         }
         else {
-          console.log("results", result);
           deferred.resolve(result);
         }
       });
@@ -35,17 +34,38 @@ $(document).ready(function() {
   }
 
   ///////////////////////////////////////////////////////
+  // get address
+  function findAddress(arg) {
+    var deferred = q.defer();
+    var latlng = new google.maps.LatLng(arg.coords.latitude, arg.coords.longitude);
+    geocoder.geocode({'latLng': latlng}, function(results, status) {
+      if(status === google.maps.GeocoderStatus.OK) {
+        console.log("restslsdjkf", results);
+        deferred.resolve(results);
+      }
+      else {
+        console.error("Geocoder failed - ", status);
+        deferred.reject(new Error(status));
+      }
+    });
+    return deferred.promise;
+  }
+
+  ///////////////////////////////////////////////////////
   // ajax request
   var killTime = function() {
 
-    findLocation()
-      .then(function(results) {
-        console.log("location", results);
+    status.text("Finding coordinates...");
+    location.text("");
+    findCoords()
+      .then(function(result) {
+        status.text("Coordinates found. Finding address...");
+        return findAddress(result);
+      })
+      .then(function(result) {
+        status.text("Address found");
+        location.text(result[0].formatted_address);
       });
-
-    geocoder.geocode({'address': location.val()}, function(results, status) {
-      console.log("results", results);
-    });
 
     $.ajax({
       url: server,
