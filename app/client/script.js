@@ -20,11 +20,13 @@ $(document).ready(function() {
   function findLocation() {
     if(navigator.geolocation) {
       var deferred = q.defer();
-      navigator.geolocation.getCurrentPosition(function(err, result) {
+      navigator.geolocation.getCurrentPosition(function(result, err) {
         if(err) {
-          deferred.resolve(result);
+          console.log("err", err);
+          deferred.reject(new Error(err));
         }
         else {
+          console.log("results", result);
           deferred.resolve(result);
         }
       });
@@ -36,7 +38,10 @@ $(document).ready(function() {
   // ajax request
   var killTime = function() {
 
-    console.log("location", findLocation());
+    findLocation()
+      .then(function(results) {
+        console.log("location", results);
+      });
 
     geocoder.geocode({'address': location.val()}, function(results, status) {
       console.log("results", results);
