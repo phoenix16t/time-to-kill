@@ -1,5 +1,12 @@
+#left {
+  width: 300px;
+  border: 1px solid red;
+  float: left;
+}
+
 #map-canvas {
-  height: 100px;
-  width: 100px;
+  height: 500px;
+  width: 700px;
   border: 1px solid;
+  float: left;
 }

@@ -1,20 +1,15 @@
 $(document).ready(function() {
   // TODO - validate time and location
-  var q = require('q');
+  var q         = require('q');
   var venueType = $('#venueType');
-  var time = $('#time');
-  var location = $('#location');
-  var status = $('#status');
-  var submit = $('#submit');
-  var geocoder;
-  var server = 'http://127.0.0.1:3000';
-
-  ///////////////////////////////////////////////////////
-  // mapping function
-  function initialize() {
-    geocoder = new google.maps.Geocoder();
-    var myLatlng = new google.maps.LatLng(-25.363882, 131.044922);
-  }
+  var time      = $('#time');
+  var location  = $('#location');
+  var status    = $('#status');
+  var submit    = $('#submit');
+  var mapCanvas = document.getElementById('map-canvas');
+  var server    = 'http://127.0.0.1:3000';
+  var lat;
+  var lng;
 
   ///////////////////////////////////////////////////////
   // get lat and lng
@@ -35,12 +30,12 @@ $(document).ready(function() {
 
   ///////////////////////////////////////////////////////
   // get address
-  function findAddress(coords) {
+  function findAddress(lat, lng) {
     var deferred = q.defer();
-    var latlng = new google.maps.LatLng(coords.latitude, coords.longitude);
+    var latlng = new google.maps.LatLng(lat, lng);
+    var geocoder = new google.maps.Geocoder();
     geocoder.geocode({'latLng': latlng}, function(results, status) {
       if(status === google.maps.GeocoderStatus.OK) {
-        console.log("restslsdjkf", results);
         deferred.resolve(results);
       }
       else {
@@ -68,10 +63,41 @@ $(document).ready(function() {
         deferred.resolve(data);
       },
       error: function(data) {
-        deferred.reject(data);
+        deferred.reject(new Error(data));
       }
     });
     return deferred.promise;
+  }
+
+  ///////////////////////////////////////////////////////
+  // draw map
+  function mapVenues(venues) {
+    var coords = new google.maps.LatLng(lat, lng);
+    var options = {
+      zoom: 15,
+      center: coords
+    };
+    var map = new google.maps.Map(mapCanvas, options);
+    var markers = [];
+
+    var marker = new google.maps.Marker({
+      position: coords,
+      map: map
+    });
+
+    venues.forEach(function(venue) {
+      console.log("venue", venue.location.coordinate.latitude);
+      var lat = venue.location.coordinate.latitude;
+      var lng = venue.location.coordinate.longitude;
+      var coords = new google.maps.LatLng(lat, lng);
+
+      markers.push(
+        new google.maps.Marker({
+          position: coords,
+          map: map
+        })
+      );
+    });
   }
 
   ///////////////////////////////////////////////////////
@@ -81,21 +107,22 @@ $(document).ready(function() {
     location.text("");
     findCoords()
       .then(function(result) {
+        lat = result.coords.latitude;
+        lng = result.coords.longitude;
         status.text("Coordinates found. Finding address...");
-        return findAddress(result.coords);
+        location.text("Latitude: " + lat + " - Longitude: " + lng);
+        return findAddress(lat, lng);
       })
       .then(function(result) {
-        status.text("Address found");
+        status.text("Address found. Finding venues...");
         location.text(result[0].formatted_address);
         return findVenues(result[0].formatted_address);
       })
-      .then(function(result) {
-        status.text("Venues found");
-        console.log("venues", result);
+      .then(function(results) {
+        status.text("Venues found. Drawing map...");
+        return mapVenues(JSON.parse(results));
       });
   };
-
-  google.maps.event.addDomListener(window, 'load', initialize);
 
   submit.click(function() {
     killTime();

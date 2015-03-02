@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
 app.set('responder', function(text) {
-  app.get('response').send("body: " + JSON.stringify(text));
+  app.get('response').send(JSON.stringify(text));
 });
 
 ///////////////////////////////////////////////////////
