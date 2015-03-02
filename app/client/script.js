@@ -13,7 +13,7 @@ $(document).ready(function() {
 
   ///////////////////////////////////////////////////////
   // get lat and lng
-  function findCoords() {
+  var findCoords = function() {
     if(navigator.geolocation) {
       var deferred = q.defer();
       navigator.geolocation.getCurrentPosition(function(result, err) {
@@ -26,11 +26,11 @@ $(document).ready(function() {
       });
       return deferred.promise;
     }
-  }
+  };
 
   ///////////////////////////////////////////////////////
   // get address
-  function findAddress(lat, lng) {
+  var findAddress = function(lat, lng) {
     var deferred = q.defer();
     var latlng = new google.maps.LatLng(lat, lng);
     var geocoder = new google.maps.Geocoder();
@@ -44,11 +44,11 @@ $(document).ready(function() {
       }
     });
     return deferred.promise;
-  }
+  };
 
   ///////////////////////////////////////////////////////
   // ajax request
-  function findVenues(location) {
+  var findVenues = function(location) {
     var deferred = q.defer();
     $.ajax({
       url: server,
@@ -67,38 +67,39 @@ $(document).ready(function() {
       }
     });
     return deferred.promise;
-  }
+  };
 
   ///////////////////////////////////////////////////////
   // draw map
-  function mapVenues(venues) {
+  var mapVenues = function(venues) {
     var coords = new google.maps.LatLng(lat, lng);
     var options = {
       zoom: 15,
       center: coords
     };
-    var map = new google.maps.Map(mapCanvas, options);
+    var mapDisplay = new google.maps.Map(mapCanvas, options);
     var markers = [];
 
-    var marker = new google.maps.Marker({
-      position: coords,
-      map: map
-    });
+    markers.push(createMarker(mapDisplay, coords, null, google.maps.Animation.BOUNCE));
 
     venues.forEach(function(venue) {
-      console.log("venue", venue.location.coordinate.latitude);
-      var lat = venue.location.coordinate.latitude;
-      var lng = venue.location.coordinate.longitude;
-      var coords = new google.maps.LatLng(lat, lng);
-
-      markers.push(
-        new google.maps.Marker({
-          position: coords,
-          map: map
-        })
-      );
+      markers.push(createMarker(mapDisplay, venue.location.coordinate.latitude, venue.location.coordinate.longitude));
     });
-  }
+  };
+
+  ///////////////////////////////////////////////////////
+  // create marker
+  var createMarker = function(mapDisplay, coord1, coord2, animation) {
+    if(coord2) {
+      coord1 = new google.maps.LatLng(coord1, coord2);
+    }
+
+    return new google.maps.Marker({
+      position: coord1,
+      map: mapDisplay,
+      animation: animation
+    });
+  };
 
   ///////////////////////////////////////////////////////
   // main application controller
