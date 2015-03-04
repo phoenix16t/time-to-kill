@@ -17,3 +17,7 @@
   border: 1px solid green;
   float: left;
 }
+
+#info li div.hide {
+  display: none;
+}

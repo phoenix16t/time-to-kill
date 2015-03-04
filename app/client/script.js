@@ -107,7 +107,7 @@ $(document).ready(function() {
       icon = 'images/' + letter + '.png';
       coord1 = new google.maps.LatLng(coord1, coord2);
       venueInfo.push(letter + ' - ' + venue.name);
-      venueList.append('<li>' + letter + ' - ' + venue.name + '</li>');
+      venueList.append('<li>' + letter + ' - ' + venue.name + '<div class="hide">' + venue.location.address[0] + '</div></li>');
     } else {
       icon = 'images/star.png';
       animation = google.maps.Animation.BOUNCE;
@@ -147,5 +147,9 @@ $(document).ready(function() {
 
   submit.click(function() {
     killTime();
+  });
+
+  $('#info ul').on('click', 'li', function() {
+    $(this).children().toggleClass("hide");
   });
 });
