@@ -1,13 +1,16 @@
 $(document).ready(function() {
   // TODO - validate time and location
-  var q         = require('q');
-  var venueType = $('#venueType');
-  var time      = $('#time');
-  var location  = $('#location');
-  var status    = $('#status');
-  var submit    = $('#submit');
-  var mapCanvas = document.getElementById('map-canvas');
-  var server    = 'http://127.0.0.1:3000';
+  var q            = require('q');
+  var venueType    = $('#venueType');
+  var time         = $('#time');
+  var location     = $('#location');
+  var status       = $('#status');
+  var submit       = $('#submit');
+  var mapCanvas    = document.getElementById('map-canvas');
+  var server       = 'http://127.0.0.1:3000';
+  var venueCounter = 0;
+  var venueInfo    = [];
+  var venueList    = $('#info ul');
   var lat;
   var lng;
 
@@ -39,7 +42,7 @@ $(document).ready(function() {
         deferred.resolve(results);
       }
       else {
-        console.error("Geocoder failed - ", status);
+        console.error('Geocoder failed - ', status);
         deferred.reject(new Error(status));
       }
     });
@@ -55,9 +58,9 @@ $(document).ready(function() {
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify({
-        "venueType": venueType.val(),
-        "time": time.val(),
-        "location": location
+        'venueType': venueType.val(),
+        'time': time.val(),
+        'location': location
       }),
       success: function(data) {
         deferred.resolve(data);
@@ -72,55 +75,72 @@ $(document).ready(function() {
   ///////////////////////////////////////////////////////
   // draw map
   var mapVenues = function(venues) {
+    // draw map
     var coords = new google.maps.LatLng(lat, lng);
     var options = {
       zoom: 15,
       center: coords
     };
     var mapDisplay = new google.maps.Map(mapCanvas, options);
+
+    // draw user's marker
     var markers = [];
+    markers.push(createMarker(mapDisplay, coords, null));
 
-    markers.push(createMarker(mapDisplay, coords, null, google.maps.Animation.BOUNCE));
-
+    // draw venue markers
     venues.forEach(function(venue) {
-      markers.push(createMarker(mapDisplay, venue.location.coordinate.latitude, venue.location.coordinate.longitude));
+      markers.push(createMarker(mapDisplay, venue.location.coordinate.latitude, venue.location.coordinate.longitude, venue));
     });
+
+    console.log('ven info', venueInfo);
   };
 
   ///////////////////////////////////////////////////////
   // create marker
-  var createMarker = function(mapDisplay, coord1, coord2, animation) {
+  var createMarker = function(mapDisplay, coord1, coord2, venue) {
+    var icon;
+    var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    var animation;
+
     if(coord2) {
+      var letter = letters[venueCounter++];
+      icon = 'images/' + letter + '.png';
       coord1 = new google.maps.LatLng(coord1, coord2);
+      venueInfo.push(letter + ' - ' + venue.name);
+      venueList.append('<li>' + letter + ' - ' + venue.name + '</li>');
+    } else {
+      icon = 'images/star.png';
+      animation = google.maps.Animation.BOUNCE;
     }
 
     return new google.maps.Marker({
       position: coord1,
       map: mapDisplay,
-      animation: animation
+      animation: animation,
+      icon: icon
     });
   };
 
   ///////////////////////////////////////////////////////
   // main application controller
   var killTime = function() {
-    status.text("Finding location coordinates...");
-    location.text("");
+    status.text('Finding location coordinates...');
+    location.text('');
     findCoords()
       .then(function(result) {
         lat = result.coords.latitude;
         lng = result.coords.longitude;
-        status.text("Coordinates found. Finding address...");
-        location.text("Latitude: " + lat + " - Longitude: " + lng);
+        status.text('Coordinates found. Finding address...');
+        location.text('Latitude: ' + lat + ' - Longitude: ' + lng);
         return findAddress(lat, lng);
       })
       .then(function(result) {
-        status.text("Address found. Finding venues...");
+        status.text('Address found. Finding venues...');
         location.text(result[0].formatted_address);
         return findVenues(result[0].formatted_address);
       })
       .then(function(results) {
-        status.text("Venues found. Drawing map...");
+        status.text('Venues found. Drawing map...');
         return mapVenues(JSON.parse(results));
       });
   };
