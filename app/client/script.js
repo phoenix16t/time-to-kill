@@ -11,6 +11,7 @@ $(document).ready(function() {
   var venueCounter = 0;
   var venueInfo    = [];
   var venueList    = $('#info ul');
+  var mapDisplay;
   var lat;
   var lng;
 
@@ -81,7 +82,7 @@ $(document).ready(function() {
       zoom: 15,
       center: coords
     };
-    var mapDisplay = new google.maps.Map(mapCanvas, options);
+    mapDisplay = new google.maps.Map(mapCanvas, options);
 
     // draw user's marker
     var markers = [];
@@ -105,9 +106,9 @@ $(document).ready(function() {
     if(coord2) {
       var letter = letters[venueCounter++];
       icon = 'images/' + letter + '.png';
-      coord1 = new google.maps.LatLng(coord1, coord2);
       venueInfo.push(letter + ' - ' + venue.name);
-      venueList.append('<li>' + letter + ' - ' + venue.name + '<div class="hide">' + venue.location.address[0] + '</div></li>');
+      venueList.append('<li>' + letter + ' - ' + venue.name + '<div class="hide" data-lat="' + coord1 + '" data-lng="' + coord2 + '">' + venue.location.address[0] + '</div></li>');
+      coord1 = new google.maps.LatLng(coord1, coord2);
     } else {
       icon = 'images/star.png';
       animation = google.maps.Animation.BOUNCE;
@@ -145,11 +146,22 @@ $(document).ready(function() {
       });
   };
 
+  ///////////////////////////////////////////////////////
+  // listeners
   submit.click(function() {
     killTime();
   });
 
   $('#info ul').on('click', 'li', function() {
-    $(this).children().toggleClass("hide");
+    if($(this).children().hasClass('hide')) {
+      var latitude = $(this).children().data('lat');
+      var longitude = $(this).children().data('lng');
+      $('#info ul li').children().addClass('hide');
+      $(this).children().removeClass('hide');
+      console.log('child', $(this).children().data('lat'), $(this).children().data('lng'), mapDisplay);
+      mapDisplay.setCenter({lat: latitude, lng: longitude});
+    } else {
+      $('#info ul li').children().addClass('hide');
+    }
   });
 });
