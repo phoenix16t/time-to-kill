@@ -138,7 +138,8 @@ $(document).ready(function() {
       .then(function(result) {
         status.text('Address found. Finding venues...');
         location.text(result[0].formatted_address);
-        return findVenues(result[0].formatted_address);
+        console.log("r", result[0].formatted_address);
+        return findVenues(lat + "," + lng);
       })
       .then(function(results) {
         status.text('Venues found. Drawing map...');

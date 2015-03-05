@@ -21,9 +21,9 @@ var searcher = function(options) {
 exports.yelp = function (time, location, callback) {
 
   // early exit - let's not bother yelp for now
-  var deferred = q.defer();
-  deferred.resolve([test_data.bars1, test_data.bars2, test_data.restaurants1, test_data.restaurants2]);
-  return deferred.promise;
+  // var deferred = q.defer();
+  // deferred.resolve([test_data.bars1, test_data.bars2, test_data.restaurants1, test_data.restaurants2]);
+  // return deferred.promise;
 
 
   // walking speed - 5000 meter per hour, divided by 2 to account for return time
@@ -31,7 +31,7 @@ exports.yelp = function (time, location, callback) {
   console.log("Searching for locations around zip", location, "reachable in", time/2, "hour(s) (", meters, "meters walking)");    // logging
 
   var options = {
-    location: location,
+    ll: location,
     radius_filter: meters,
     category_filter: 'bars',
     limit: 20,
@@ -40,7 +40,7 @@ exports.yelp = function (time, location, callback) {
   };
 
   var options2 = {
-    location: location,
+    ll: location,
     radius_filter: meters,
     category_filter: 'bars',
     limit: 20,
@@ -49,7 +49,7 @@ exports.yelp = function (time, location, callback) {
   };
 
   var options3 = {
-    location: location,
+    ll: location,
     radius_filter: meters,
     category_filter: 'restaurants',
     limit: 20,
@@ -58,7 +58,7 @@ exports.yelp = function (time, location, callback) {
   };
 
   var options4 = {
-    location: location,
+    ll: location,
     radius_filter: meters,
     category_filter: 'restaurants',
     limit: 20,
@@ -71,6 +71,7 @@ exports.yelp = function (time, location, callback) {
   return searcher(options)
     .then(function(results) {
       allResults.push(results);
+      console.log("allResults", allResults);
       return options2;
     })
     .then(searcher)
