@@ -142,6 +142,7 @@ $(document).ready(function() {
         return findVenues(lat + "," + lng);
       })
       .then(function(results) {
+        console.log("results", results);
         status.text('Venues found. Drawing map...');
         return mapVenues(JSON.parse(results));
       });

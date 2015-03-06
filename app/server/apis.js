@@ -16,6 +16,12 @@ var searcher = function(options) {
   return deferred.promise;
 };
 
+var stripData = function(venues) {
+  console.log("blah1", venues);
+  console.log("blah2", venues[0].businesses[2]);
+  return venues;
+};
+
 ///////////////////////////////////////////////////////
 // yelp
 exports.yelp = function (time, location, callback) {
@@ -70,25 +76,23 @@ exports.yelp = function (time, location, callback) {
 
   return searcher(options)
     .then(function(results) {
-      allResults.push(results);
-      console.log("allResults", allResults);
-      return options2;
+      allResults.push({bars1: results});
+      return searcher(options2);
     })
-    .then(searcher)
     .then(function(results) {
-      allResults.push(results);
-      return options3;
+      allResults.push({bars2: results});
+      return searcher(options3);
     })
-    .then(searcher)
     .then(function(results) {
-      allResults.push(results);
-      return options4;
+      allResults.push({restaurants1: results});
+      return searcher(options4);
     })
-    .then(searcher)
     .then(function(results) {
-      allResults.push(results);
-      // TODO:  modify this return value to work correctly
+      allResults.push({restaurants2: results});
       return allResults;
+    })
+    .then(function(results) {
+      return stripData(results);
     })
     .catch(function(err) {
       console.error(err);
