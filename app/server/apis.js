@@ -16,10 +16,29 @@ var searcher = function(options) {
   return deferred.promise;
 };
 
+var stripBusinesses = function(businesses) {
+  return businesses.map(function(business) {
+    return {
+      name: business.name,
+      latitude: business.location.coordinate.latitude,
+      longitude: business.location.coordinate.longitude
+    };
+  });
+};
+
 var stripData = function(venues) {
-  console.log("blah1", venues);
-  console.log("blah2", venues[0].businesses[2]);
-  return venues;
+  var reformatted = {};
+
+  venues.forEach(function(captured) {
+    for(var category in captured) {
+      reformatted[category] = [];
+
+      var businesses = captured[category].businesses;
+      reformatted[category] = stripBusinesses(businesses);
+    }
+  });
+
+  return reformatted;
 };
 
 ///////////////////////////////////////////////////////
