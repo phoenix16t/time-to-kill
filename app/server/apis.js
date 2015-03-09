@@ -3,7 +3,17 @@ var test_data = require("./test_data.js");
 var q = require('q');
 var yelpConnection = require("yelp").createClient(data.yelp);
 
-var searcher = function(options) {
+var stripBusinesses = function(businesses) {
+  return businesses.map(function(business) {
+    return {
+      name: business.name,
+      latitude: business.location.coordinate.latitude,
+      longitude: business.location.coordinate.longitude
+    };
+  });
+};
+
+var businessBatch = function(options) {
   var deferred = q.defer();
   yelpConnection.search(options, function(err, result) {
     if(err) {
@@ -16,41 +26,32 @@ var searcher = function(options) {
   return deferred.promise;
 };
 
-var stripBusinesses = function(businesses) {
-  return businesses.map(function(business) {
-    return {
-      name: business.name,
-      latitude: business.location.coordinate.latitude,
-      longitude: business.location.coordinate.longitude
-    };
-  });
+var findBusinesses = function(options) {
+  var foundBusinesses;
+
+  var altOptions = {
+    ll: options.ll,
+    radius_filter: options.radius_filter,
+    category_filter: options.category_filter,
+    limit: 20,
+    offset: 20,
+    sort: 1
+  };
+
+  return businessBatch(options)
+    .then(function(results) {
+      foundBusinesses = stripBusinesses(results.businesses);
+      return businessBatch(altOptions);
+    })
+    .then(function(results) {
+      return foundBusinesses.concat(stripBusinesses(results.businesses));
+    });
 };
 
-var stripData = function(venues) {
-  var reformatted = {};
-
-  venues.forEach(function(captured) {
-    for(var category in captured) {
-      reformatted[category] = [];
-
-      var businesses = captured[category].businesses;
-      reformatted[category] = stripBusinesses(businesses);
-    }
-  });
-
-  return reformatted;
-};
 
 ///////////////////////////////////////////////////////
 // yelp
 exports.yelp = function (time, location, callback) {
-
-  // early exit - let's not bother yelp for now
-  // var deferred = q.defer();
-  // deferred.resolve([test_data.bars1, test_data.bars2, test_data.restaurants1, test_data.restaurants2]);
-  // return deferred.promise;
-
-
   // walking speed - 5000 meter per hour, divided by 2 to account for return time
   var meters = (time * 5000) / 2;
   console.log("Searching for locations around zip", location, "reachable in", time/2, "hour(s) (", meters, "meters walking)");    // logging
@@ -64,54 +65,18 @@ exports.yelp = function (time, location, callback) {
     sort: 1
   };
 
-  var options2 = {
-    ll: location,
-    radius_filter: meters,
-    category_filter: 'bars',
-    limit: 20,
-    offset: 20,
-    sort: 1
-  };
+  var allResults = {};
 
-  var options3 = {
-    ll: location,
-    radius_filter: meters,
-    category_filter: 'restaurants',
-    limit: 20,
-    offset: 0,
-    sort: 1
-  };
-
-  var options4 = {
-    ll: location,
-    radius_filter: meters,
-    category_filter: 'restaurants',
-    limit: 20,
-    offset: 20,
-    sort: 1
-  };
-
-  var allResults = [];
-
-  return searcher(options)
+  return findBusinesses(options)
     .then(function(results) {
-      allResults.push({bars1: results});
-      return searcher(options2);
+      allResults.bars = results;
+      options.category_filter = 'restaurants';
+      return findBusinesses(options);
     })
     .then(function(results) {
-      allResults.push({bars2: results});
-      return searcher(options3);
-    })
-    .then(function(results) {
-      allResults.push({restaurants1: results});
-      return searcher(options4);
-    })
-    .then(function(results) {
-      allResults.push({restaurants2: results});
+      allResults.restaurants = results;
+      console.log("all results", allResults);
       return allResults;
-    })
-    .then(function(results) {
-      return stripData(results);
     })
     .catch(function(err) {
       console.error(err);
