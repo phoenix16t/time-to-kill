@@ -1,7 +1,21 @@
-#left {
+#inputs {
   width: 300px;
   border: 1px solid red;
   float: left;
+}
+
+#category-list {
+  height: 300px;
+  width: 300px;
+  border: 1px solid orange;
+  float: left;
+}
+
+#category-list input[type="radio"] {
+}
+
+#category-list .category {
+  border: 1px solid;
 }
 
 #map-canvas {
@@ -11,13 +25,13 @@
   float: left;
 }
 
-#info {
+#venue-info {
   height: 300px;
   width: 300px;
   border: 1px solid green;
   float: left;
 }
 
-#info li div.hide {
+#venue-info li div.hide {
   display: none;
 }

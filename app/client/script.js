@@ -3,15 +3,17 @@ $(document).ready(function() {
   var q            = require('q');
   var venueType    = $('#venueType');
   var time         = $('#time');
-  var location     = $('#location');
-  var status       = $('#status');
+  var locText      = $('#location');
+  var statusText   = $('#status');
   var submit       = $('#submit');
+  var categories   = $('#category-list');
   var mapCanvas    = document.getElementById('map-canvas');
   var server       = 'http://127.0.0.1:3000';
   var venueCounter = 0;
   var venueInfo    = [];
   var venueList    = $('#info ul');
   var mapDisplay;
+  var allVenues;
   var lat;
   var lng;
 
@@ -74,8 +76,22 @@ $(document).ready(function() {
   };
 
   ///////////////////////////////////////////////////////
+  // list categories returned from yelp
+  var listCategories = function(venues) {
+    for(var venue in venues) {
+      categories.append(
+        '<div class="category" id="' + venue + '"><input type="radio" value="' + venue + '">' + venue + '</div>'
+      );
+    }
+  };
+
+  ///////////////////////////////////////////////////////
   // draw map
-  var mapVenues = function(venues) {
+  var mapVenues = function(selected) {
+    console.log("huh?", selected);
+    console.log("all", allVenues);
+    console.log("all2", allVenues[selected]);
+
     // draw map
     var coords = new google.maps.LatLng(lat, lng);
     var options = {
@@ -88,9 +104,8 @@ $(document).ready(function() {
     var markers = [];
     markers.push(createMarker(mapDisplay, coords, null));
 
-    // draw venue markers
-    venues.forEach(function(venue) {
-      markers.push(createMarker(mapDisplay, venue.location.coordinate.latitude, venue.location.coordinate.longitude, venue));
+    allVenues[selected].forEach(function(venue) {
+      markers.push(createMarker(mapDisplay, venue.latitude, venue.longitude, venue));
     });
 
     console.log('ven info', venueInfo);
@@ -104,10 +119,11 @@ $(document).ready(function() {
     var animation;
 
     if(coord2) {
+      if(venueCounter === 25) { venueCounter = 0; }
       var letter = letters[venueCounter++];
       icon = 'images/' + letter + '.png';
       venueInfo.push(letter + ' - ' + venue.name);
-      venueList.append('<li>' + letter + ' - ' + venue.name + '<div class="hide" data-lat="' + coord1 + '" data-lng="' + coord2 + '">' + venue.location.address[0] + '</div></li>');
+      // venueList.append('<li>' + letter + ' - ' + venue.name + '<div class="hide" data-lat="' + coord1 + '" data-lng="' + coord2 + '">' + venue.location.address[0] + '</div></li>');
       coord1 = new google.maps.LatLng(coord1, coord2);
     } else {
       icon = 'images/star.png';
@@ -125,26 +141,31 @@ $(document).ready(function() {
   ///////////////////////////////////////////////////////
   // main application controller
   var killTime = function() {
-    status.text('Finding location coordinates...');
-    location.text('');
+    statusText.text('Finding location coordinates...');
+    locText.text('');
+
     findCoords()
-      .then(function(result) {
-        lat = result.coords.latitude;
-        lng = result.coords.longitude;
-        status.text('Coordinates found. Finding address...');
-        location.text('Latitude: ' + lat + ' - Longitude: ' + lng);
+      .then(function(coords) {
+        lat = coords.coords.latitude;
+        lng = coords.coords.longitude;
+        statusText.text('Coords found. Finding address...');
+        locText.text('Lat: ' + lat + ' - Lng: ' + lng);
         return findAddress(lat, lng);
       })
-      .then(function(result) {
-        status.text('Address found. Finding venues...');
-        location.text(result[0].formatted_address);
-        console.log("r", result[0].formatted_address);
+      .then(function(address) {
+        statusText.text('Address found. Finding venues...');
+        locText.text(address[0].formatted_address);
         return findVenues(lat + "," + lng);
       })
+      .then(function(venues) {
+        venues = JSON.parse(venues);
+        statusText.text('Venues found. Drawing map...');
+        listCategories(venues);
+        allVenues = venues;
+//        return mapVenues(venues);
+      })
       .then(function(results) {
-        console.log("results", results);
-        status.text('Venues found. Drawing map...');
-        return mapVenues(JSON.parse(results));
+
       });
   };
 
@@ -152,6 +173,11 @@ $(document).ready(function() {
   // listeners
   submit.click(function() {
     killTime();
+  });
+
+  $('#category-list').on('click', '.category', function() {
+    console.log("this", $(this).attr('id'));
+    mapVenues($(this).attr('id'));
   });
 
   $('#info ul').on('click', 'li', function() {

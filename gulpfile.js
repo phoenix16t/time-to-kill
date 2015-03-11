@@ -38,7 +38,10 @@ gulp.task('reload', ['lint'], function() {
 
 gulp.task('watch', function() {
   gulp.watch('app/client/script.js', ['browserify']);
-  gulp.watch(['app/client/*.{js,html,css}'], ['reload']);
+  gulp.watch(['app/client/*.{js,html,css}', '!app/client/build.js']
+    //, ['reload']
+
+    );
 });
 
 gulp.task('default', ['lint', 'golive', 'browserify', 'watch']);
