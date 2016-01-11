@@ -1,14 +1,18 @@
+.left-container {
+  display: inline-block;
+}
+
 #inputs {
   width: 300px;
   border: 1px solid red;
-  float: left;
+  /*float: left;*/
 }
 
 #category-list {
-  height: 300px;
+  /*height: 300px;*/
   width: 300px;
   border: 1px solid orange;
-  float: left;
+  /*float: left;*/
 }
 
 #category-list input[type="radio"] {
@@ -19,17 +23,19 @@
 }
 
 #map-canvas {
+  display: inline-block;
+  vertical-align: top;
   height: 500px;
   width: 700px;
   border: 1px solid;
-  float: left;
+  /*float: left;*/
 }
 
 #venue-info {
-  height: 300px;
+  /*height: 300px;*/
   width: 300px;
   border: 1px solid green;
-  float: left;
+  /*float: left;*/
 }
 
 #venue-info li div.hide {
