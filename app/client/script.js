@@ -80,7 +80,7 @@ $(document).ready(function() {
   var listCategories = function(venues) {
     for(var venue in venues) {
       categories.append(
-        '<div class="category" id="' + venue + '"><input type="radio" value="' + venue + '">' + venue + '</div>'
+        '<div class="category" id="' + venue + '"><input name="category" type="radio" value="' + venue + '">' + venue + '</div>'
       );
     }
   };
