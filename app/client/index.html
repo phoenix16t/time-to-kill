@@ -1,0 +1,31 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script src="bower_components/jquery/dist/jquery.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+  <script src="build.js"></script>
+</head>
+<body>
+  <div class="left-container">
+    <div id="inputs">
+      <form>
+        <p>Enter venue type: <input type="text" id="venueType"></p>
+        <p>Enter time: <input type="text" id="time"></p>
+        <p>Status: <span id="status"></span></p>
+        <p>Current location: <span id="location"></span></p>
+        <input type="button" id="submit" value="Kill Time">
+      </form>
+    </div>
+
+    <div id="category-list"></div>
+
+    <div id="venue-info">
+      <ul>
+      </ul>
+    </div>
+  </div>
+
+  <div id="map-canvas"></div>
+</body>
+</html>

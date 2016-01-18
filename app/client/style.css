@@ -1,0 +1,43 @@
+.left-container {
+  display: inline-block;
+}
+
+#inputs {
+  width: 300px;
+  border: 1px solid red;
+  /*float: left;*/
+}
+
+#category-list {
+  /*height: 300px;*/
+  width: 300px;
+  border: 1px solid orange;
+  /*float: left;*/
+}
+
+#category-list input[type="radio"] {
+}
+
+#category-list .category {
+  border: 1px solid;
+}
+
+#map-canvas {
+  display: inline-block;
+  vertical-align: top;
+  height: 500px;
+  width: 700px;
+  border: 1px solid;
+  /*float: left;*/
+}
+
+#venue-info {
+  /*height: 300px;*/
+  width: 300px;
+  border: 1px solid green;
+  /*float: left;*/
+}
+
+#venue-info li div.hide {
+  display: none;
+}
