@@ -54,7 +54,7 @@ $(document).ready(function() {
 
   ///////////////////////////////////////////////////////
   // ajax request
-  var findVenues = function(location) {
+  var findVenues = function(latLng, zip) {
     var deferred = q.defer();
     $.ajax({
       url: server,
@@ -63,7 +63,8 @@ $(document).ready(function() {
       data: JSON.stringify({
         'venueType': venueType.val(),
         'time': time.val(),
-        'location': location
+        'latLng': latLng,
+        'zip': zip
       }),
       success: function(data) {
         deferred.resolve(data);
@@ -154,8 +155,11 @@ $(document).ready(function() {
       })
       .then(function(address) {
         statusText.text('Address found. Finding venues...');
+        console.log("address", address);
         locText.text(address[0].formatted_address);
-        return findVenues(lat + "," + lng);
+        var regex = /\w\w (\d{5}),/g;
+        address[0].formatted_address.match(regex);
+        return findVenues(lat + "," + lng, RegExp.$1);
       })
       .then(function(venues) {
         venues = JSON.parse(venues);

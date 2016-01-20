@@ -1,12 +1,15 @@
 var app = require('express')();
 var q = require('q');
-var apis = require('./apis.js');
 var bodyParser = require('body-parser');
-app.use(bodyParser.json());
+var zipApi = require('./ZipApi.js');
+var venueHandler = require('./VenueHandler.js');
 
-app.set('responder', function(text) {
-  app.get('response').send(JSON.stringify(text));
-});
+var logger = require('./Logger.js').Logger;
+var dbHandler = require('./DbHandler.js').DbHandler;
+
+var data = require("./data.js");
+
+app.use(bodyParser.json());
 
 ///////////////////////////////////////////////////////
 // handle ajax
@@ -17,20 +20,58 @@ app.all('/', function(request, response, next) {
 });
 
 app.post('/', function(request, response) {
-  app.set('response', response);
-  apis.yelp(request.body.time, request.body.location)
-    .then(function(yelpResults) {
-      // console.log("bars1", yelpResults[0]);
-      // console.log("bars2", yelpResults[1]);
-      // console.log("restaurants1", yelpResults[2]);
-      // console.log("restaurants2", yelpResults[3]);
-      app.get('responder')(yelpResults);
-    })
-    .catch(function(err) {
-      console.error(err);
-    });
+  var time = request.body.time;
+  var latLng = request.body.latLng;
+  var transport = request.body.transport;
+  var zip = request.body.zip;
 
-  console.log("replying with body of request");
+  var zipExists;
+  var venueList;
+  var updates;
+
+  var distance = 3;
+
+  logger.step('1');
+  dbHandler.findZip(zip, distance)
+  .then(function(ze) {
+    zipExists = ze;
+    if(zipExists === true) {
+      logger.step('2b');
+      return zipExists;
+    }
+
+    logger.step('2a-1');
+    return zipApi.retrieve(zip, distance)
+    .then(function(zipObj) {
+      logger.step('2a-2');
+      return dbHandler.insertZips(zipObj);
+    });
+  })
+  .then(function() {
+    if(logger.currentStep() !== '2b') {
+      return results;
+    }
+
+    return dbHandler.retrieveZips();
+  })
+  .then(function() {
+    logger.step('3');
+    return dbHandler.retrieveVenues();
+  })
+  .then(function(vl) {
+    logger.step('4');
+    venueList = vl;
+
+    return dbHandler.findOutdatedZips();
+  })
+  .then(function(results) {
+    logger.step('5');
+    updates = results;
+
+    updates.forEach(function(update) {
+      console.log("update", update);
+    });
+  });
 });
 
 app.listen(3000, '0.0.0.0');
